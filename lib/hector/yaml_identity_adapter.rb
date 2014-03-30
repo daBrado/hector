@@ -7,13 +7,23 @@ module Hector
   #
   class YamlIdentityAdapter
     attr_reader :filename
+    attr_accessor :permit_unauthed
 
     def initialize(filename)
       @filename = File.expand_path(filename)
+      @permit_unauthed = false
+    end
+
+    def permit_no_password?
+      @permit_unauthed
     end
 
     def authenticate(username, password)
-      yield load_identities[normalize(username)] == hash(normalize(username), password)
+      if password
+        yield load_identities[normalize(username)] == hash(normalize(username), password)
+      else
+        yield !load_identities.key?(normalize(username))
+      end
     end
 
     def remember(username, password)
