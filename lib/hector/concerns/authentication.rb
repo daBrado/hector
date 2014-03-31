@@ -29,16 +29,18 @@ module Hector
         end
 
         def set_identity
-          if @username && @password && !@identity
+          if @username && !@identity
             Identity.authenticate(@username, @password) do |identity|
               if @identity = identity
                 cancel_timeout
                 set_session
-              elsif @password.include?(":")
-                @username, @password = @password.split(":")
-                set_identity
-              else
-                error InvalidPassword
+              elsif @password
+                if @password.include?(":")
+                  @username, @password = @password.split(":")
+                  set_identity
+                else
+                  error InvalidPassword
+                end
               end
             end
           end
